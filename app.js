@@ -842,7 +842,31 @@ class BookShelfApp {
             { text: "To learn to read is to light a fire; every syllable that is spelled out is a spark.", author: "Victor Hugo" },
             { text: "A room without books is like a body without a soul.", author: "Cicero" },
             { text: "So many books, so little time.", author: "Frank Zappa" },
-            { text: "I have always imagined that Paradise will be a kind of library.", author: "Jorge Luis Borges" }
+            { text: "I have always imagined that Paradise will be a kind of library.", author: "Jorge Luis Borges" },
+            { text: "We read to know we are not alone.", author: "C.S. Lewis" },
+            { text: "A reader lives a thousand lives before he dies. The man who never reads lives only one.", author: "George R.R. Martin" },
+            { text: "Until I feared I would lose it, I never loved to read. One does not love breathing.", author: "Harper Lee" },
+            { text: "You can never get a cup of tea large enough or a book long enough to suit me.", author: "C.S. Lewis" },
+            { text: "If you don’t like to read, you haven’t found the right book.", author: "J.K. Rowling" },
+            { text: "Books are a uniquely portable magic.", author: "Stephen King" },
+            { text: "The more that you read, the more things you will know. The more that you learn, the more places you'll go.", author: "Dr. Seuss" },
+            { text: "Books are the mirrors of the soul.", author: "Virginia Woolf" },
+            { text: "Think before you speak. Read before you think.", author: "Fran Lebowitz" },
+            { text: "Let us read, and let us dance; these two amusements will never do any harm to the world.", author: "Voltaire" },
+            { text: "Books are the plane, and the train, and the road. They are the destination, and the journey. They are home.", author: "Anna Quindlen" },
+            { text: "The library is inhabited by spirits that come out of the pages at night.", author: "Isabel Allende" },
+            { text: "Sleep is good, he said, and books are better.", author: "George R.R. Martin" },
+            { text: "Reading is a discount ticket to everywhere.", author: "Mary Schmich" },
+            { text: "A book is a device to ignite the imagination.", author: "Alan Bennett" },
+            { text: "Show me a family of readers, and I will show you the people who move the world.", author: "Napoléon Bonaparte" },
+            { text: "Books are the quietest and most constant of friends; they are the most accessible and wisest of counselors.", author: "Charles W. Eliot" },
+            { text: "That’s the thing about books. They let you travel without moving your feet.", author: "Jhumpa Lahiri" },
+            { text: "Read, read, read. Read everything—trash, classics, good and bad, and see how they do it.", author: "William Faulkner" },
+            { text: "Books are not made for furniture, but there is nothing else that so beautifully furnishes a house.", author: "Henry Ward Beecher" },
+            { text: "Once you learn to read, you will be forever free.", author: "Frederick Douglass" },
+            { text: "In the case of good books, the point is not to see how many of them you can get through, but rather how many can get through to you.", author: "Mortimer J. Adler" },
+            { text: "We lose ourselves in books, we find ourselves there too.", author: "Anonymous" },
+            { text: "A book is a garden, an orchard, a storehouse, a party, a company by the way, a counselor, a multitude of counselors.", author: "Charles Baudelaire" }
         ];
 
         // Pick quote based on day of year
