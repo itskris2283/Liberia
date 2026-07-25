@@ -1,0 +1,762 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --page-color: #f8f5ef;
+    --page-dark: #ede8df;
+    --spine-color: #8b7355;
+    --cover-color: #4a3728;
+    --shadow: rgba(0, 0, 0, 0.4);
+    --text-muted: rgba(255, 255, 255, 0.6);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a0a;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    user-select: none;
+    cursor: default;
+}
+
+.hidden { display: none !important; }
+
+/* ============ UPLOAD SCREEN ============ */
+#upload-screen {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #1a1510 0%, #0a0a08 100%);
+}
+
+.upload-area {
+    text-align: center;
+    padding: 80px 100px;
+    border: 2px dashed rgba(139, 115, 85, 0.3);
+    border-radius: 24px;
+    transition: all 0.4s ease;
+    cursor: pointer;
+}
+
+.upload-area.drag-over {
+    border-color: rgba(139, 115, 85, 0.8);
+    background: rgba(139, 115, 85, 0.05);
+}
+
+/* 3D Book Preview */
+.book-3d {
+    width: 120px;
+    height: 160px;
+    margin: 0 auto 40px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateY(-25deg) rotateX(5deg);
+    animation: book-hover 4s ease-in-out infinite;
+}
+
+@keyframes book-hover {
+    0%, 100% { transform: rotateY(-25deg) rotateX(5deg) translateY(0); }
+    50% { transform: rotateY(-25deg) rotateX(5deg) translateY(-12px); }
+}
+
+.book-cover-front {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #6b4c35, #4a3728);
+    border-radius: 2px 8px 8px 2px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    transform: translateZ(15px);
+}
+
+.book-cover-front::after {
+    content: '';
+    position: absolute;
+    inset: 15px;
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 2px;
+}
+
+.book-spine {
+    position: absolute;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(90deg, #3d2b1a, #5a3f2a);
+    left: -15px;
+    transform: rotateY(90deg) translateZ(0px);
+    transform-origin: right;
+}
+
+.book-pages-edge {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #f5f0e5, #e8e0d0, #f5f0e5);
+    transform: translateZ(-15px);
+    border-radius: 0 6px 6px 0;
+}
+
+.upload-area h1 {
+    font-family: 'Playfair Display', serif;
+    color: #c4a97d;
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+    font-weight: 400;
+}
+
+.upload-area p {
+    color: rgba(196, 169, 125, 0.5);
+    font-size: 1rem;
+    margin-bottom: 35px;
+    font-weight: 300;
+}
+
+.browse-btn {
+    display: inline-block;
+    padding: 14px 45px;
+    background: linear-gradient(135deg, #8b7355, #6b4c35);
+    color: #f0e6d6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s;
+    letter-spacing: 0.5px;
+}
+
+.browse-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 115, 85, 0.3);
+}
+
+#file-info {
+    margin-top: 20px;
+    color: rgba(196, 169, 125, 0.4);
+    font-size: 0.85rem;
+}
+
+/* ============ READER SCREEN ============ */
+#reader-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0d0b09;
+}
+
+.ambient-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 30% 50%, rgba(80, 60, 30, 0.08) 0%, transparent 70%),
+        radial-gradient(ellipse at 70% 50%, rgba(80, 60, 30, 0.08) 0%, transparent 70%),
+        radial-gradient(ellipse at 50% 50%, rgba(40, 30, 15, 0.15) 0%, transparent 80%);
+    pointer-events: none;
+}
+
+/* ============ BOOK ============ */
+#book-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+#book {
+    display: flex;
+    position: relative;
+    perspective: 3000px;
+    transform-style: preserve-3d;
+    /* Subtle book tilt for realism */
+    filter: drop-shadow(0 25px 60px rgba(0,0,0,0.7));
+}
+
+/* ============ PAGES ============ */
+.book-page {
+    position: relative;
+    background: var(--page-color);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.left-page {
+    border-radius: 6px 0 0 6px;
+}
+
+.right-page {
+    border-radius: 0 6px 6px 0;
+}
+
+.page-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.page-content canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Paper texture overlay */
+.paper-texture {
+    position: absolute;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 3px,
+            rgba(0,0,0,0.008) 3px,
+            rgba(0,0,0,0.008) 4px
+        );
+    pointer-events: none;
+    z-index: 2;
+    mix-blend-mode: multiply;
+}
+
+/* Inner page shadows (gutter shadow) */
+.page-shadow-inner {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 60px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.page-shadow-inner.left-shadow {
+    right: 0;
+    background: linear-gradient(to left,
+        rgba(0,0,0,0.12) 0%,
+        rgba(0,0,0,0.06) 20%,
+        rgba(0,0,0,0.02) 50%,
+        transparent 100%
+    );
+}
+
+.page-shadow-inner.right-shadow {
+    left: 0;
+    background: linear-gradient(to right,
+        rgba(0,0,0,0.12) 0%,
+        rgba(0,0,0,0.06) 20%,
+        rgba(0,0,0,0.02) 50%,
+        transparent 100%
+    );
+}
+
+/* Page numbers */
+.page-number {
+    position: absolute;
+    bottom: 20px;
+    font-size: 11px;
+    color: rgba(0,0,0,0.3);
+    font-family: 'Playfair Display', serif;
+    z-index: 4;
+    letter-spacing: 1px;
+}
+
+.page-number.left-num { left: 30px; }
+.page-number.right-num { right: 30px; }
+
+/* ============ SPINE ============ */
+.book-spine-center {
+    width: 12px;
+    min-width: 12px;
+    background: linear-gradient(90deg,
+        #c8bfb0 0%,
+        #d8d0c2 15%,
+        #bdb4a4 30%,
+        #a89e8e 50%,
+        #bdb4a4 70%,
+        #d8d0c2 85%,
+        #c8bfb0 100%
+    );
+    position: relative;
+    z-index: 5;
+    box-shadow:
+        inset 0 0 8px rgba(0,0,0,0.2),
+        0 0 4px rgba(0,0,0,0.1);
+}
+
+.book-spine-center::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: rgba(0,0,0,0.15);
+}
+
+/* ============ PAGE EDGES ============ */
+.page-edges {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    width: 14px;
+    z-index: 1;
+}
+
+.page-edges.left-edges {
+    right: 100%;
+    margin-right: 0;
+    background: linear-gradient(to right,
+        #d4cdc0,
+        #e8e0d2 30%,
+        #ede6d8 60%,
+        #f0e9dc 80%,
+        #f5eee2
+    );
+    border-radius: 4px 0 0 4px;
+    box-shadow: -2px 0 6px rgba(0,0,0,0.2);
+    /* Simulate stacked pages */
+    background-image:
+        repeating-linear-gradient(
+            to bottom,
+            transparent,
+            transparent 2px,
+            rgba(0,0,0,0.03) 2px,
+            rgba(0,0,0,0.03) 3px
+        );
+}
+
+.page-edges.right-edges {
+    left: 100%;
+    margin-left: 0;
+    background: linear-gradient(to left,
+        #d4cdc0,
+        #e8e0d2 30%,
+        #ede6d8 60%,
+        #f0e9dc 80%,
+        #f5eee2
+    );
+    border-radius: 0 4px 4px 0;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.2);
+    background-image:
+        repeating-linear-gradient(
+            to bottom,
+            transparent,
+            transparent 2px,
+            rgba(0,0,0,0.03) 2px,
+            rgba(0,0,0,0.03) 3px
+        );
+}
+
+/* ============ FLIP ANIMATION ============ */
+#flip-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    perspective: 3000px;
+    transform-style: preserve-3d;
+    z-index: 20;
+}
+
+.flip-leaf {
+    position: absolute;
+    top: 0;
+    width: calc(50% - 6px);
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 25;
+}
+
+.flip-leaf.from-right {
+    left: calc(50% + 6px);
+    transform-origin: left center;
+}
+
+.flip-leaf.from-left {
+    left: 0;
+    transform-origin: right center;
+}
+
+.flip-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    background: var(--page-color);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flip-face canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.flip-face-back {
+    transform: rotateY(180deg);
+}
+
+/* Shadows on flip faces */
+.flip-face::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: opacity 0.7s;
+}
+
+.flip-leaf.from-right .flip-face-front::after {
+    background: linear-gradient(to left, rgba(0,0,0,0) 60%, rgba(0,0,0,0.08) 100%);
+}
+
+.flip-leaf.from-right .flip-face-back::after {
+    background: linear-gradient(to right, rgba(0,0,0,0) 60%, rgba(0,0,0,0.08) 100%);
+}
+
+.flip-leaf.from-left .flip-face-front::after {
+    background: linear-gradient(to right, rgba(0,0,0,0) 60%, rgba(0,0,0,0.08) 100%);
+}
+
+.flip-leaf.from-left .flip-face-back::after {
+    background: linear-gradient(to left, rgba(0,0,0,0) 60%, rgba(0,0,0,0.08) 100%);
+}
+
+/* Dynamic shadow cast on the underlying page during flip */
+.flip-shadow-overlay {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    z-index: 15;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.7s;
+}
+
+.flip-shadow-overlay.active {
+    opacity: 1;
+}
+
+.flip-shadow-overlay.on-left {
+    left: 0;
+    width: calc(50% - 6px);
+    background: linear-gradient(to left, rgba(0,0,0,0.15) 0%, transparent 60%);
+}
+
+.flip-shadow-overlay.on-right {
+    left: calc(50% + 6px);
+    width: calc(50% - 6px);
+    background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, transparent 60%);
+}
+
+/* ============ CLICK ZONES ============ */
+.click-zone {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 30;
+    cursor: pointer;
+}
+
+.click-zone-left {
+    left: 0;
+    width: 35%;
+    cursor: w-resize;
+}
+
+.click-zone-right {
+    right: 0;
+    width: 35%;
+    cursor: e-resize;
+}
+
+/* Page turn hint on hover */
+.click-zone-right:hover ~ #book-wrapper #right-page {
+    filter: brightness(0.97);
+}
+
+.click-zone-left:hover ~ #book-wrapper #left-page {
+    filter: brightness(0.97);
+}
+
+/* ============ HUD ============ */
+.hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.4s;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+}
+
+.hud:hover, .hud.visible {
+    opacity: 1;
+}
+
+.hud-left, .hud-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.hud-title {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 300;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hud-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hud-btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: white;
+}
+
+#hud-pages {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.85rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+}
+
+/* ============ PROGRESS BAR ============ */
+.progress-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.4s;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+    padding: 0 40px;
+}
+
+.progress-bar:hover {
+    opacity: 1;
+}
+
+.progress-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #8b7355, #c4a97d);
+    transition: width 0.3s;
+    border-radius: 0 2px 2px 0;
+    z-index: 51;
+}
+
+.progress-input {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    z-index: 52;
+    height: 30px;
+}
+
+.progress-input::-webkit-slider-runnable-track {
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+}
+
+.progress-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #c4a97d;
+    margin-top: -5.5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.progress-bar:hover .progress-input::-webkit-slider-thumb {
+    opacity: 1;
+}
+
+.progress-input::-moz-range-track {
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    border: none;
+}
+
+.progress-input::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #c4a97d;
+    border: none;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* ============ LOADING ============ */
+#loading {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 8, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.loading-inner {
+    text-align: center;
+}
+
+.loading-book {
+    width: 60px;
+    height: 80px;
+    position: relative;
+    margin: 0 auto 30px;
+}
+
+.loading-page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--page-color);
+    border-radius: 2px 4px 4px 2px;
+    transform-origin: left center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.loading-page.lp1 {
+    animation: page-flip-load 1.5s ease-in-out infinite;
+    z-index: 3;
+}
+
+.loading-page.lp2 {
+    animation: page-flip-load 1.5s ease-in-out infinite 0.15s;
+    z-index: 2;
+}
+
+.loading-page.lp3 {
+    z-index: 1;
+}
+
+@keyframes page-flip-load {
+    0%, 100% { transform: rotateY(0deg); }
+    50% { transform: rotateY(-60deg); }
+}
+
+#loading-msg {
+    color: rgba(196, 169, 125, 0.6);
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+/* ============ PAGE TURN CURSOR HINTS ============ */
+.click-zone-right:active {
+    cursor: grabbing;
+}
+
+.click-zone-left:active {
+    cursor: grabbing;
+}
+
+/* ============ SINGLE PAGE MODE (for first/last) ============ */
+.book-page.cover-page {
+    background: linear-gradient(145deg, #5a4230, #3d2b1a);
+}
+
+.book-page.cover-page .paper-texture {
+    display: none;
+}
+
+.book-page.empty-page {
+    background: var(--page-dark);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+    .upload-area {
+        padding: 50px 40px;
+    }
+
+    .upload-area h1 {
+        font-size: 1.6rem;
+    }
+
+    .click-zone-left { width: 30%; }
+    .click-zone-right { width: 30%; }
+
+    .hud {
+        padding: 10px 15px;
+    }
+
+    .progress-bar {
+        padding: 0 15px;
+    }
+}
+
+/* ============ INTRO ANIMATION ============ */
+@keyframes book-open {
+    0% {
+        transform: scale(0.8) rotateY(-10deg);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) rotateY(0deg);
+        opacity: 1;
+    }
+}
+
+#book-wrapper.intro {
+    animation: book-open 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Smooth page transitions */
+.book-page {
+    transition: filter 0.2s;
+}

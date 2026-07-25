@@ -1,0 +1,8 @@
+mobile-app/
+diff.txt
+.DS_Store
+*.log
+node_modules/
+.env
+.vscode/
+.idea/

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1510">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>BookShelf — PDF Reader</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="app.css?v=8">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="app-logo">📖</div>
+        <h2>Librería</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="library">
+            <span class="nav-icon">📚</span>
+            <span>Library</span>
+        </button>
+        <button class="nav-item" data-view="recent">
+            <span class="nav-icon">🕐</span>
+            <span>Recent</span>
+        </button>
+        <button class="nav-item" data-view="bookmarks">
+            <span class="nav-icon">🔖</span>
+            <span>Bookmarks</span>
+        </button>
+        <button class="nav-item" data-view="settings">
+            <span class="nav-icon">⚙️</span>
+            <span>Settings</span>
+        </button>
+    </nav>
+
+    <div class="sidebar-footer">
+        <button class="add-book-btn" id="btn-add-book">
+            <span>+</span> Add Book
+        </button>
+    </div>
+</aside>
+
+<!-- ============ MAIN CONTENT ============ -->
+<main class="main-content" id="main-content">
+
+    <!-- LIBRARY VIEW -->
+    <section class="view active" id="view-library">
+        
+        <!-- FULL WIDTH HEADER -->
+        <div class="view-header">
+            <div class="greeting-box">
+                <h1 id="greeting-title">Good evening, reader. 🌙</h1>
+                <p class="greeting-subtitle">Every page you read takes you somewhere new.</p>
+            </div>
+            <div class="view-actions">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search books..." id="search-input">
+                </div>
+                <button class="view-btn" id="btn-grid-view" title="Grid view">▦</button>
+                <button class="view-btn" id="btn-list-view" title="List view">☰</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD CONTAINER -->
+        <div class="dashboard-layout">
+            
+            <!-- MAIN COLUMN -->
+            <div class="dashboard-main">
+
+                <!-- HERO SECTION -->
+                <div class="hero-section" id="hero-section" style="display:none;">
+                    <div class="hero-bg"></div>
+                    <div class="hero-content">
+                        <div class="hero-cover-container">
+                            <img src="" class="hero-cover" id="hero-cover" alt="Cover">
+                        </div>
+                        <div class="hero-info">
+                            <div class="hero-label">CONTINUE READING</div>
+                            <h2 class="hero-title" id="hero-title">Book Title</h2>
+                            <p class="hero-author" id="hero-author">Author Name</p>
+                            
+                            <div class="hero-progress-box">
+                                <div class="hero-progress-labels">
+                                    <span id="hero-progress-pct">0% complete</span>
+                                    <span id="hero-progress-pages">0 / 0 pages</span>
+                                </div>
+                                <div class="hero-progress-bar">
+                                    <div class="hero-progress-fill" id="hero-progress-fill"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="hero-actions">
+                                <button class="primary-btn" id="btn-hero-continue">
+                                    <span class="icon">📖</span> Continue Reading
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENTLY ADDED -->
+                <div class="section-container" id="recently-added-section" style="display:none;">
+                    <div class="section-header">
+                        <h2>Recently Added</h2>
+                        <button class="text-btn" id="btn-view-all">View all</button>
+                    </div>
+                    <div class="horizontal-scroll-container">
+                        <div class="books-scroll-list" id="recently-added-list"></div>
+                        <button class="scroll-btn scroll-right" id="btn-scroll-right">›</button>
+                    </div>
+                </div>
+
+                <!-- ALL BOOKS CONTAINER -->
+                <div class="section-container" id="all-books-section">
+                    <div class="empty-state" id="empty-library">
+                        <svg class="icon empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        <h2>Your library is empty</h2>
+                        <p>Click "Add Book" to start reading.</p>
+                        <label for="file-input-main" class="primary-btn">
+                            <span>+</span> Add Your First Book
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIDEBAR COLUMN -->
+            <div class="dashboard-sidebar">
+                
+                <!-- READING PROGRESS WIDGET -->
+                <div class="widget">
+                    <h3>Reading Progress</h3>
+                    <div class="progress-widget-content">
+                        <div class="circular-progress">
+                            <svg viewBox="0 0 36 36" class="circular-chart">
+                                <circle class="circle-bg" cx="18" cy="18" r="15.9155" />
+                                <circle class="circle-fill" id="overall-progress-circle"
+                                    cx="18" cy="18" r="15.9155"
+                                    stroke-dasharray="0, 100"
+                                    transform="rotate(-90 18 18)"
+                                />
+                                <text x="18" y="22.5" class="circle-icon">📖</text>
+                            </svg>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="progress-pct" id="overall-progress-text">0%</div>
+                            <div class="progress-sub">of your library read</div>
+                        </div>
+                    </div>
+                    <div class="widget-stats-row">
+                        <div class="stat-box">
+                            <div class="stat-val" id="stat-books-read">0</div>
+                            <div class="stat-label">Books read</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-val" id="stat-pages-read">0</div>
+                            <div class="stat-label">Pages read</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- READING STREAK WIDGET -->
+                <div class="widget">
+                    <h3>Reading Streak</h3>
+                    <div class="streak-header">
+                        <span class="streak-icon">🔥</span>
+                        <div class="streak-info">
+                            <span class="streak-count" id="streak-count">0</span>
+                            <span class="streak-label">days in a row</span>
+                        </div>
+                    </div>
+                    <div class="streak-days" id="streak-days">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- TODAY'S QUOTE WIDGET -->
+                <div class="widget quote-widget">
+                    <h3>Today's Quote</h3>
+                    <div class="quote-content">
+                        <div class="quote-mark">“</div>
+                        <p class="quote-text" id="quote-text">A book is a dream that you hold in your hands.</p>
+                        <p class="quote-author" id="quote-author">— Neil Gaiman</p>
+                        <div class="quote-mark right">”</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- RECENT VIEW -->
+    <section class="view" id="view-recent">
+        <div class="view-header">
+            <h1>Recently Read</h1>
+        </div>
+        <div class="books-list" id="recent-list"></div>
+        <div class="empty-state" id="empty-recent">
+            <div class="empty-icon">🕐</div>
+            <h2>No recent books</h2>
+            <p>Books you read will appear here</p>
+        </div>
+    </section>
+
+    <!-- BOOKMARKS VIEW -->
+    <section class="view" id="view-bookmarks">
+        <div class="view-header">
+            <h1>Bookmarks</h1>
+        </div>
+        <div class="bookmarks-list" id="bookmarks-list"></div>
+        <div class="empty-state" id="empty-bookmarks">
+            <div class="empty-icon">🔖</div>
+            <h2>No bookmarks yet</h2>
+            <p>Bookmark pages while reading</p>
+        </div>
+    </section>
+
+    <!-- SETTINGS VIEW -->
+    <section class="view" id="view-settings">
+        <div class="view-header">
+            <h1>Settings</h1>
+        </div>
+        <div class="settings-panel">
+            <div class="setting-group">
+                <h3>Appearance</h3>
+                <div class="setting-row">
+                    <label>Theme</label>
+                    <div class="theme-options">
+                        <button class="theme-btn active" data-theme="dark">🌙 Dark</button>
+                        <button class="theme-btn" data-theme="light">☀️ Light</button>
+                        <button class="theme-btn" data-theme="sepia">📜 Sepia</button>
+                    </div>
+                </div>
+            </div>
+            <div class="setting-group">
+                <h3>Reading</h3>
+                <div class="setting-row">
+                    <label>Page Turn Animation</label>
+                    <select id="setting-animation">
+                        <option value="flip">Realistic Flip</option>
+                        <option value="slide">Slide</option>
+                        <option value="fade">Fade</option>
+                        <option value="none">None</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label>Animation Speed</label>
+                    <input type="range" id="setting-speed" min="300" max="1200" value="700" step="100">
+                    <span id="speed-label">700ms</span>
+                </div>
+                <div class="setting-row">
+                    <label>Double Page Spread</label>
+                    <label class="toggle">
+                        <input type="checkbox" id="setting-spread">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <label>True Dark (Invert Pages)</label>
+                    <label class="toggle">
+                        <input type="checkbox" id="setting-invert-pages">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <label>Show Page Numbers</label>
+                    <label class="toggle">
+                        <input type="checkbox" id="setting-page-numbers" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="setting-group">
+                <h3>Data</h3>
+                <div class="setting-row">
+                    <label>Clear Library</label>
+                    <button class="danger-btn" id="btn-clear-library">Clear All</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ALL BOOKS MODAL OVERLAY -->
+    <div class="modal-overlay" id="all-books-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>All Books</h2>
+                <div class="search-bar modal-search-bar">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" id="modal-search-input" placeholder="Search library...">
+                </div>
+                <button class="icon-btn" id="btn-close-modal">
+                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="books-grid" id="books-grid"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- ============ READER ============ -->
+<div class="reader" id="reader">
+    <div class="reader-ambient"></div>
+
+    <!-- PDF JS -->
+    <div class="reader-topbar" id="reader-topbar">
+        <div class="topbar-left">
+            <button class="reader-btn" id="btn-close-reader">←</button>
+            <span class="reader-title" id="reader-title"></span>
+        </div>
+        <div class="topbar-center">
+            <span id="reader-page-info"></span>
+        </div>
+        <div class="topbar-right">
+            <button class="reader-btn" id="btn-toc" title="Table of Contents">☰</button>
+            <button class="reader-btn" id="btn-bookmark" title="Bookmark">♡</button>
+            <button class="reader-btn" id="btn-search-reader" title="Search">🔍</button>
+            <button class="reader-btn" id="btn-reader-settings" title="Settings">⚙</button>
+            <button class="reader-btn" id="btn-reader-fullscreen" title="Fullscreen">⛶</button>
+        </div>
+    </div>
+
+    <!-- Book display -->
+    <div class="reader-book-area" id="reader-book-area">
+        <div class="book-display" id="book-display">
+            <!-- Single page mode -->
+            <div class="single-page-view" id="single-page-view">
+                <div class="sp-page" id="sp-page">
+                    <div class="sp-content" id="sp-content"></div>
+                    <div class="paper-texture"></div>
+                </div>
+            </div>
+
+            <!-- Double page spread mode -->
+            <div class="spread-view" id="spread-view">
+                <div class="page-edges left-edges" id="r-left-edges"></div>
+                <div class="spread-page left-page" id="r-left-page">
+                    <div class="sp-content" id="r-left-content"></div>
+                    <div class="page-num left-num" id="r-left-num"></div>
+                    <div class="gutter-shadow left-gutter"></div>
+                    <div class="paper-texture"></div>
+                </div>
+                <div class="book-spine" id="r-spine"></div>
+                <div class="spread-page right-page" id="r-right-page">
+                    <div class="sp-content" id="r-right-content"></div>
+                    <div class="page-num right-num" id="r-right-num"></div>
+                    <div class="gutter-shadow right-gutter"></div>
+                    <div class="paper-texture"></div>
+                </div>
+                <div class="page-edges right-edges" id="r-right-edges"></div>
+            </div>
+
+            <!-- Flip animation layer -->
+            <div class="flip-layer" id="flip-layer"></div>
+        </div>
+    </div>
+
+    <!-- Click zones -->
+    <div class="rclick-zone rclick-left" id="rclick-left"></div>
+    <div class="rclick-zone rclick-right" id="rclick-right"></div>
+
+    <!-- Bottom bar -->
+    <div class="reader-bottombar" id="reader-bottombar">
+        <div class="reader-progress">
+            <div class="reader-progress-fill" id="reader-progress-fill"></div>
+            <input type="range" class="reader-progress-input" id="reader-progress-input" min="0" value="0">
+        </div>
+        <div class="reader-bottom-info">
+            <span id="reader-percent">0%</span>
+            <span id="reader-pages-left"></span>
+        </div>
+    </div>
+
+    <!-- Unlock Button for Locked Immersive Mode -->
+    <button id="btn-unlock-immersive" class="reader-btn unlock-btn" title="Unlock UI">🔒</button>
+</div>
+
+    <!-- TOC Panel -->
+    <div class="side-panel" id="toc-panel">
+        <div class="panel-header">
+            <h3>Table of Contents</h3>
+            <button class="panel-close" data-close="toc-panel">✕</button>
+        </div>
+        <div class="panel-body" id="toc-body">
+            <div class="toc-list" id="toc-list"></div>
+        </div>
+    </div>
+
+    <!-- Search Panel -->
+    <div class="side-panel" id="search-panel">
+        <div class="panel-header">
+            <h3>Search</h3>
+            <button class="panel-close" data-close="search-panel">✕</button>
+        </div>
+        <div class="panel-body">
+            <div class="search-panel-input">
+                <input type="text" id="reader-search-input" placeholder="Search in book...">
+                <button class="search-go" id="btn-search-go">Go</button>
+            </div>
+            <div class="search-results" id="search-results"></div>
+        </div>
+    </div>
+
+    <!-- Quick settings panel -->
+    <div class="side-panel" id="quick-settings-panel">
+        <div class="panel-header">
+            <h3>Display</h3>
+            <button class="panel-close" data-close="quick-settings-panel">✕</button>
+        </div>
+        <div class="panel-body">
+            <div class="qs-row">
+                <label>Theme</label>
+                <div class="qs-theme-btns">
+                    <button class="qs-theme" data-rtheme="dark">Dark</button>
+                    <button class="qs-theme" data-rtheme="light">Light</button>
+                    <button class="qs-theme" data-rtheme="sepia">Sepia</button>
+                </div>
+            </div>
+            <div class="qs-row">
+                <label>View</label>
+                <div class="qs-theme-btns">
+                    <button class="qs-view" data-rview="spread">Two Page</button>
+                    <button class="qs-view" data-rview="single">Single</button>
+                </div>
+            </div>
+            <div class="qs-row">
+                <label>Immersive</label>
+                <div class="qs-theme-btns">
+                    <button class="qs-btn" id="btn-qs-lock">Lock UI</button>
+                </div>
+            </div>
+            <div class="qs-row" style="margin-top: 15px;">
+                <label>Zoom</label>
+                <input type="range" id="reader-zoom-input" min="1" max="1.5" step="0.01" value="1" style="width: 100%;">
+            </div>
+            <div class="qs-row" style="margin-top: 15px;">
+                <label>True Dark</label>
+                <label class="toggle">
+                    <input type="checkbox" id="qs-setting-invert">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden file input -->
+<input type="file" id="file-input-main" accept=".pdf" hidden>
+<input type="file" id="file-input-side" accept=".pdf" hidden>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loading-overlay">
+    <div class="loading-content">
+        <div class="loading-spinner">
+            <div class="ls-page p1"></div>
+            <div class="ls-page p2"></div>
+            <div class="ls-page p3"></div>
+        </div>
+        <p class="loading-text" id="loading-text">Loading...</p>
+        <div class="loading-bar">
+            <div class="loading-bar-fill" id="loading-bar-fill"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Context menu -->
+<div class="context-menu" id="context-menu">
+    <button class="cm-item" data-action="open">📖 Open</button>
+    <button class="cm-item" data-action="info">ℹ️ Info</button>
+    <button class="cm-item" data-action="delete">🗑️ Remove</button>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Book info modal -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="book-info-modal">
+        <div class="modal-header">
+            <h3>Book Info</h3>
+            <button class="modal-close" id="modal-close">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-bottom-nav">
+    <button class="nav-item active" data-view="library">
+        <span class="nav-icon">📚</span>
+        <span>Library</span>
+    </button>
+    <button class="nav-item" data-view="recent">
+        <span class="nav-icon">🕒</span>
+        <span>Recent</span>
+    </button>
+    <button class="nav-item" data-view="bookmarks">
+        <span class="nav-icon">🔖</span>
+        <span>Bookmarks</span>
+    </button>
+    <button class="nav-item" id="btn-mobile-add-book">
+        <span class="nav-icon">➕</span>
+        <span>Add</span>
+    </button>
+</nav>
+
+    <script src="app.js?v=11"></script>
+</body>
+</html>
