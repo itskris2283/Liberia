@@ -801,7 +801,21 @@ class BookShelfApp {
     updateStreak() {
         if (!this.el.streak_count) return;
         
-        const streak = this.settings.streak || { count: 0, lastDate: null };
+        let streak = this.settings.streak || { count: 0, lastDate: null };
+        const getLocalStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const todayStr = getLocalStr();
+        
+        if (streak.lastDate && streak.lastDate !== todayStr) {
+            const d1 = new Date(streak.lastDate + 'T00:00:00Z');
+            const d2 = new Date(todayStr + 'T00:00:00Z');
+            const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+            if (diffDays > 1) {
+                streak.count = 0;
+                this.settings.streak = streak;
+                this.saveSettings();
+            }
+        }
+        
         this.el.streak_count.textContent = streak.count; 
         
         if (this.el.streak_days) {
@@ -812,14 +826,12 @@ class BookShelfApp {
             let todayIdx = today.getDay() - 1;
             if (todayIdx === -1) todayIdx = 6;
 
-            const todayStr = today.toISOString().split('T')[0];
             const hasReadToday = streak.lastDate === todayStr;
-            
             const streakEndIdx = hasReadToday ? todayIdx : todayIdx - 1;
             const streakStartIdx = streakEndIdx - streak.count + 1;
             
             days.forEach((day, i) => {
-                const isActive = (i >= streakStartIdx && i <= streakEndIdx);
+                const isActive = (streak.count > 0 && i >= streakStartIdx && i <= streakEndIdx);
                 this.el.streak_days.innerHTML += `
                     <div class="streak-day">
                         <span>${day}</span>
@@ -882,15 +894,15 @@ class BookShelfApp {
     }
 
     recordReadingSession() {
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
+        const getLocalStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const todayStr = getLocalStr();
         let streak = this.settings.streak || { count: 0, lastDate: null };
 
         if (streak.lastDate !== todayStr) {
             if (streak.lastDate) {
-                const lastDate = new Date(streak.lastDate);
-                const diffTime = Math.abs(now - lastDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                const d1 = new Date(streak.lastDate + 'T00:00:00Z');
+                const d2 = new Date(todayStr + 'T00:00:00Z');
+                const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)); 
                 
                 if (diffDays === 1) {
                     streak.count += 1;
