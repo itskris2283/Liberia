@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bookshelf-v2';
+const CACHE_NAME = 'bookshelf-v3';
 const ASSETS = [
     '/',
     '/index.html',
