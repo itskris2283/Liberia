@@ -848,17 +848,23 @@ class BookShelfApp {
     updateGreeting() {
         if (!this.el.greeting_title) return;
         const hour = new Date().getHours();
-        let greeting = "Good evening";
+        let greetingText = "Good evening, reader. ✨";
         if (hour >= 5 && hour < 12) {
-            greeting = "Good morning";
+            greetingText = "Good morning, reader. ☀️";
         } else if (hour >= 12 && hour < 17) {
-            greeting = "Good afternoon";
+            greetingText = "Good afternoon, reader. 📖";
         } else if (hour >= 17 && hour < 22) {
-            greeting = "Good evening";
+            greetingText = "Good evening, reader. ✨";
         } else {
-            greeting = "Good night";
+            const nightPhrases = [
+                "Welcome, night owl. 🦉✨",
+                "Burning the midnight oil, reader. 🌙",
+                "Hello, late reader. 🌌",
+                "The quietest hours make the best reading. 🦉✨"
+            ];
+            greetingText = nightPhrases[Math.floor(Math.random() * nightPhrases.length)];
         }
-        this.el.greeting_title.textContent = `${greeting}, reader. ✨`;
+        this.el.greeting_title.textContent = greetingText;
     }
 
     updateQuote() {
