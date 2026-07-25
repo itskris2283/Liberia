@@ -347,10 +347,24 @@ body {
     text-align: center;
     padding: 80px 20px;
     display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0 auto;
 }
 
-.empty-state.show { display: block; }
-.empty-icon { font-size: 64px; margin-bottom: 20px; }
+.empty-state.show { display: flex !important; }
+.empty-icon { 
+    width: 64px; 
+    height: 64px; 
+    font-size: 64px; 
+    margin: 0 auto 20px auto; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: var(--text-muted); 
+}
 .empty-state h2 { color: var(--text-secondary); font-weight: 400; margin-bottom: 8px; font-family: 'Playfair Display', serif; }
 .empty-state p { color: var(--text-muted); margin-bottom: 24px; }
 
