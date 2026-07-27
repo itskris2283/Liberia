@@ -1102,7 +1102,7 @@ class BookShelfApp {
         if (this.el.all_books_modal) {
             this.el.all_books_modal.classList.remove('active');
         }
-        const book = this.books.find(b => b.id === bookId);
+        let book = this.books.find(b => b.id === bookId);
         if (!book) return;
 
         this.recordReadingSession();
@@ -1110,15 +1110,54 @@ class BookShelfApp {
         this.showLoading('Opening book...');
 
         try {
+            // Re-fetch from IndexedDB to avoid Safari/WebKit "The object can not be found here"
+            // (stale/detached Blob references after backgrounding or garbage collection)
+            try {
+                if (book.persisted) {
+                    const freshBook = await this.db.getBook(bookId);
+                    if (freshBook && freshBook.data) {
+                        book = freshBook;
+                        const idx = this.books.findIndex(b => b.id === bookId);
+                        if (idx !== -1) this.books[idx] = freshBook;
+                    }
+                }
+            } catch (dbErr) {
+                console.warn('Could not refresh book from DB, falling back to memory', dbErr);
+            }
+
             let data;
-            if (book.data instanceof Blob) {
-                data = new Uint8Array(await book.data.arrayBuffer());
-            } else if (book.data instanceof ArrayBuffer) {
-                data = new Uint8Array(book.data);
-            } else if (ArrayBuffer.isView(book.data)) {
-                data = new Uint8Array(book.data.buffer, book.data.byteOffset, book.data.byteLength);
-            } else {
-                data = new Uint8Array(book.data);
+            try {
+                if (book.data instanceof Blob) {
+                    data = new Uint8Array(await book.data.arrayBuffer());
+                } else if (book.data instanceof ArrayBuffer) {
+                    data = new Uint8Array(book.data);
+                } else if (ArrayBuffer.isView(book.data)) {
+                    data = new Uint8Array(book.data.buffer, book.data.byteOffset, book.data.byteLength);
+                } else {
+                    data = new Uint8Array(book.data);
+                }
+            } catch (blobErr) {
+                console.warn('Blob read failed, attempting full IDB reload fallback...', blobErr);
+                if (book.persisted) {
+                    this.books = await this.db.getAllBooks() || [];
+                    const retryBook = this.books.find(b => b.id === bookId);
+                    if (retryBook && retryBook.data) {
+                        book = retryBook;
+                        if (book.data instanceof Blob) {
+                            data = new Uint8Array(await book.data.arrayBuffer());
+                        } else if (book.data instanceof ArrayBuffer) {
+                            data = new Uint8Array(book.data);
+                        } else if (ArrayBuffer.isView(book.data)) {
+                            data = new Uint8Array(book.data.buffer, book.data.byteOffset, book.data.byteLength);
+                        } else {
+                            data = new Uint8Array(book.data);
+                        }
+                    } else {
+                        throw blobErr;
+                    }
+                } else {
+                    throw blobErr;
+                }
             }
             this.pdf = await pdfjsLib.getDocument({ data }).promise;
             this.totalPages = this.pdf.numPages;
