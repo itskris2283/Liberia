@@ -1,6 +1,6 @@
 {
-    "name": "BookShelf — PDF Reader",
-    "short_name": "BookShelf",
+    "name": "Librería — PDF Reader",
+    "short_name": "Librería",
     "description": "Immersive PDF book reader with flipbook experience",
     "start_url": "/",
     "display": "standalone",

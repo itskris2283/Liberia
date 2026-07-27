@@ -1189,6 +1189,7 @@ class BookShelfApp {
             this.originalAmbientColor = await this.extractAmbientColor(book.cover);
             this.updateAmbientGlow();
 
+            document.title = `${book.title} — Librería`;
             this.el.reader.classList.add('open');
             this.el.sidebar.style.display = 'none';
             this.el.main_content.style.display = 'none';
@@ -1704,6 +1705,7 @@ class BookShelfApp {
     async closeReader() {
         await this.saveProgress();
 
+        document.title = 'Librería — PDF Reader';
         this.el.reader.classList.remove('open');
         this.el.sidebar.style.display = '';
         this.el.main_content.style.display = '';
